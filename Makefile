@@ -12,5 +12,5 @@ $(DEPS): .install-bls  ;
 
 
 clean:
-	rm -rf $(DEPS)
+	rm -rf $(DEPS) .install-bls
 .PHONY: clean

@@ -21,6 +21,6 @@ else
     build_from_source "${subm_dir}"
 
     find "${subm_dir}" -type f -name libbls_signatures.h -exec mv -- "{}" . \;
-    find "${subm_dir}" -type f -name libbls_signatures.a -exec cp -- "{}" . \;
+    find "${subm_dir}" -type f -name libbls_signatures_ffi.a -exec cp -- "{}" libbls_signatures.a \;
     find "${subm_dir}" -type f -name libbls_signatures.pc -exec cp -- "{}" . \;
 fi
