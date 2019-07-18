@@ -20,7 +20,7 @@ else
     (>&2 echo "failed to find or obtain precompiled assets for ${subm_dir}, falling back to local build")
     build_from_source "${subm_dir}"
 
-    find "${subm_dir}" -type f -name libbls_signatures.h -exec mv -- "{}" . \;
+    find "${subm_dir}" -type f -name libbls_signatures.h -exec cp -- "{}" . \;
     find "${subm_dir}" -type f -name libbls_signatures_ffi.a -exec cp -- "{}" libbls_signatures.a \;
     find "${subm_dir}" -type f -name libbls_signatures.pc -exec cp -- "{}" . \;
 fi
