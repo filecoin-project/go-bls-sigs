@@ -1,12 +1,16 @@
-all: include/libbls_signatures.h
+DEPS:=libbls_signatures.h libbls_signatures.pc libbls_signatures.a
+
+all: $(DEPS)
 .PHONY: all
 
 
-include/libbls_signatures.h:
+$(DEPS): .install-bls  ;
+
+.install-bls: bls-signatures
 	./install-bls-signatures
+	@touch $@
 
 
 clean:
-	rm -rf include
-	rm -rf lib
+	rm -rf $(DEPS) .install-bls
 .PHONY: clean

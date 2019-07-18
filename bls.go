@@ -4,9 +4,9 @@ import (
 	"unsafe"
 )
 
-// #cgo LDFLAGS: -L${SRCDIR}/lib -lbls_signatures
-// #cgo pkg-config: ${SRCDIR}/lib/pkgconfig/libbls_signatures.pc
-// #include "./include/libbls_signatures.h"
+// #cgo LDFLAGS: ${SRCDIR}/libbls_signatures.a
+// #cgo pkg-config: ${SRCDIR}/libbls_signatures.pc
+// #include "./libbls_signatures.h"
 import "C"
 
 // Hash computes the digest of a message

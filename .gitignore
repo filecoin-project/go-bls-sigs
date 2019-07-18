@@ -1,2 +1,4 @@
-include/
-lib
+*.h
+*.a
+*.pc
+.install-bls
