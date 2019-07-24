@@ -41,3 +41,20 @@ func TestBLSSigningAndVerification(t *testing.T) {
 	assert.False(t, Verify(barSignature, []Digest{fooDigest}, []PublicKey{barPublicKey}))
 	assert.False(t, Verify(fooSignature, []Digest{barDigest}, []PublicKey{fooPublicKey}))
 }
+
+func BenchmarkBLSVerify(b *testing.B) {
+	priv := PrivateKeyGenerate()
+
+	msg := Message("this is a message that i will be signing")
+	digest := Hash(msg)
+
+	sig := PrivateKeySign(priv, msg)
+	pubk := PrivateKeyPublicKey(priv)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if !Verify(sig, []Digest{digest}, []PublicKey{pubk}) {
+			b.Fatal("failed to verify")
+		}
+	}
+}
