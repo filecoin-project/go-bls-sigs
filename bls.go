@@ -30,7 +30,7 @@ func Hash(message Message) Digest {
 }
 
 // Verify verifies that a signature is the aggregated signature of digests - pubkeys
-func Verify(signature Signature, digests []Digest, publicKeys []PublicKey) bool {
+func Verify(signature *Signature, digests []Digest, publicKeys []PublicKey) bool {
 	// prep data
 	flattenedDigests := make([]byte, DigestBytes*len(digests))
 	for idx, digest := range digests {
@@ -58,14 +58,13 @@ func Verify(signature Signature, digests []Digest, publicKeys []PublicKey) bool 
 	cFlattenedPublicKeysLen := C.size_t(len(flattenedPublicKeys))
 
 	// call method
-	resPtr := (*C.VerifyResponse)(unsafe.Pointer(C.verify(cSignaturePtr, cFlattenedDigestsPtr, cFlattenedDigestsLen, cFlattenedPublicKeysPtr, cFlattenedPublicKeysLen)))
-	defer C.destroy_verify_response(resPtr)
+	res := (C.int)(C.verify(cSignaturePtr, cFlattenedDigestsPtr, cFlattenedDigestsLen, cFlattenedPublicKeysPtr, cFlattenedPublicKeysLen))
 
-	return resPtr.result > 0
+	return res > 0
 }
 
 // Aggregate aggregates signatures together into a new signature
-func Aggregate(signatures []Signature) Signature {
+func Aggregate(signatures []Signature) *Signature {
 	// prep data
 	flattenedSignatures := make([]byte, SignatureBytes*len(signatures))
 	for idx, sig := range signatures {
@@ -80,6 +79,9 @@ func Aggregate(signatures []Signature) Signature {
 
 	// call method
 	resPtr := (*C.AggregateResponse)(unsafe.Pointer(C.aggregate(cFlattenedSignaturesPtr, cFlattenedSignaturesLen)))
+	if resPtr == nil {
+		return nil
+	}
 	defer C.destroy_aggregate_response(resPtr)
 
 	// prep response
@@ -87,7 +89,7 @@ func Aggregate(signatures []Signature) Signature {
 	signatureSlice := C.GoBytes(unsafe.Pointer(&resPtr.signature), SignatureBytes) // nolint: staticcheck
 	copy(signature[:], signatureSlice)
 
-	return signature
+	return &signature
 }
 
 // PrivateKeyGenerate generates a private key
@@ -105,7 +107,7 @@ func PrivateKeyGenerate() PrivateKey {
 }
 
 // PrivateKeySign signs a message
-func PrivateKeySign(privateKey PrivateKey, message Message) Signature {
+func PrivateKeySign(privateKey PrivateKey, message Message) *Signature {
 	// prep request
 	cPrivateKey := C.CBytes(privateKey[:])
 	defer C.free(cPrivateKey)
@@ -118,6 +120,9 @@ func PrivateKeySign(privateKey PrivateKey, message Message) Signature {
 
 	// call method
 	resPtr := (*C.PrivateKeySignResponse)(unsafe.Pointer(C.private_key_sign(cPrivateKeyPtr, cMessagePtr, cMessageLen)))
+	if resPtr == nil {
+		return nil
+	}
 	defer C.destroy_private_key_sign_response(resPtr)
 
 	// prep response
@@ -125,7 +130,7 @@ func PrivateKeySign(privateKey PrivateKey, message Message) Signature {
 	signatureSlice := C.GoBytes(unsafe.Pointer(&resPtr.signature), SignatureBytes) // nolint: staticcheck
 	copy(signature[:], signatureSlice)
 
-	return signature
+	return &signature
 }
 
 // PrivateKeyPublicKey gets the public key for a private key
