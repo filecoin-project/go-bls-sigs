@@ -1,7 +1,6 @@
 package bls
 
 import (
-	"fmt"
 	"unsafe"
 )
 
