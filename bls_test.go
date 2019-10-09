@@ -51,8 +51,8 @@ func BenchmarkBLSVerify(b *testing.B) {
 	digest := Hash(msg)
 
 	sig := PrivateKeySign(priv, msg)
-	fmt.Println("SIG SIZE: ", len(sig))
-	fmt.Println("SIG: ", sig)
+	// fmt.Println("SIG SIZE: ", len(sig))
+	// fmt.Println("SIG: ", sig)
 	pubk := PrivateKeyPublicKey(priv)
 
 	b.ResetTimer()
@@ -84,7 +84,7 @@ func benchmarkBLSVerifyBatchSize(size int) func(b *testing.B) {
 			digests = append(digests, Hash(msg))
 			priv := PrivateKeyGenerate()
 			sig := PrivateKeySign(priv, msg)
-			sigs = append(sigs, sig)
+			sigs = append(sigs, *sig)
 			pubk := PrivateKeyPublicKey(priv)
 			pubks = append(pubks, pubk)
 		}
