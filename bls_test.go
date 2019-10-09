@@ -1,7 +1,9 @@
 package bls
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -49,12 +51,53 @@ func BenchmarkBLSVerify(b *testing.B) {
 	digest := Hash(msg)
 
 	sig := PrivateKeySign(priv, msg)
+	fmt.Println("SIG SIZE: ", len(sig))
+	fmt.Println("SIG: ", sig)
 	pubk := PrivateKeyPublicKey(priv)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		if !Verify(sig, []Digest{digest}, []PublicKey{pubk}) {
 			b.Fatal("failed to verify")
+		}
+	}
+}
+
+func BenchmarkBLSVerifyBatch(b *testing.B) {
+	b.Run("10", benchmarkBLSVerifyBatchSize(10))
+	b.Run("50", benchmarkBLSVerifyBatchSize(50))
+	b.Run("100", benchmarkBLSVerifyBatchSize(100))
+	b.Run("300", benchmarkBLSVerifyBatchSize(300))
+	b.Run("1000", benchmarkBLSVerifyBatchSize(1000))
+	b.Run("4000", benchmarkBLSVerifyBatchSize(4000))
+}
+
+func benchmarkBLSVerifyBatchSize(size int) func(b *testing.B) {
+	return func(b *testing.B) {
+		var digests []Digest
+		var msgs []Message
+		var sigs []Signature
+		var pubks []PublicKey
+		for i := 0; i < size; i++ {
+			msg := Message(fmt.Sprintf("cats cats cats cats %d %d %d dogs", i, i, i))
+			msgs = append(msgs, msg)
+			digests = append(digests, Hash(msg))
+			priv := PrivateKeyGenerate()
+			sig := PrivateKeySign(priv, msg)
+			sigs = append(sigs, sig)
+			pubk := PrivateKeyPublicKey(priv)
+			pubks = append(pubks, pubk)
+		}
+
+		t := time.Now()
+		agsig := Aggregate(sigs)
+		fmt.Println("Aggregate took: ", time.Since(t))
+
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			if !Verify(agsig, digests, pubks) {
+				b.Fatal("failed to verify")
+			}
 		}
 	}
 }
