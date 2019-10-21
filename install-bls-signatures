@@ -17,15 +17,25 @@ if download_release_tarball tarball_path "${subm_dir}"; then
     cp "${tmp_dir}/lib/libbls_signatures.a" .
     cp "${tmp_dir}/lib/pkgconfig/libbls_signatures.pc" .
 else
-    if [ "$CI" = "true" ]; then
-        (>&2 echo "failed to find or obtain precompiled assets for ${subm_dir}, falling back to local build")
-        build_from_source "${subm_dir}"
+    (>&2 echo "failed to find or obtain precompiled assets for ${subm_dir}, falling back to local build")
+    build_from_source "${subm_dir}"
 
-        find "${subm_dir}" -type f -name libbls_signatures.h -exec cp -- "{}" . \;
-        find "${subm_dir}" -type f -name libbls_signatures_ffi.a -exec cp -- "{}" libbls_signatures.a \;
-        find "${subm_dir}" -type f -name libbls_signatures.pc -exec cp -- "{}" . \;
-    else
-        (>&2 echo "build failed: could not obtain precompiled assets for ${subm_dir} - contact @laser or @dignifiedquire")
+    find "${subm_dir}/target/release" -type f -name libbls_signatures.h -exec cp -- "{}" . \;
+    find "${subm_dir}/target/release" -type f -name libbls_signatures_ffi.a -exec cp -- "{}" libbls_signatures.a \;
+    find "${subm_dir}/target/release" -type f -name libbls_signatures.pc -exec cp -- "{}" . \;
+
+    if [[ ! -f "./libbls_signatures.h" ]]; then
+        (>&2 echo "failed to install libbls_signatures.h")
+        exit 1
+    fi
+
+    if [[ ! -f "./libbls_signatures.a" ]]; then
+        (>&2 echo "failed to install libbls_signatures.a")
+        exit 1
+    fi
+
+    if [[ ! -f "./libbls_signatures.pc" ]]; then
+        (>&2 echo "failed to install libbls_signatures.pc")
         exit 1
     fi
 fi
