@@ -41,5 +41,5 @@ else
         exit 1
     fi
 
-    (>&2 echo "successfully build and installed libbls_signatures from source")
+    (>&2 echo "successfully built and installed libbls_signatures from source")
 fi
